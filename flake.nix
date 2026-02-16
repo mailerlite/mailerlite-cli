@@ -8,7 +8,7 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     let
-      version = "0.0.2";
+      version = "1.0.0";
 
       # Map nix system to goreleaser naming
       systemMap = {
@@ -20,10 +20,10 @@
 
       # SHA256 hashes for each platform (updated by CI on release)
       hashes = {
-        "x86_64-linux" = "sha256-E8s7hQh3U1gqK8VUWNjCcLlChH/ikOd+M/pDMdW0Thk=";
-        "aarch64-linux" = "sha256-m3MHZE7PetO+a97XS6tm0v4+9MxXGi9bKGv2bV3U3LU=";
-        "x86_64-darwin" = "sha256-3kwSJ/M5lqK3yaPQ7654y9vgMPSLOgDRYqm9xL3a8NU=";
-        "aarch64-darwin" = "sha256-LRHfBvGdCzCM9+ee1ilysniAYgnVtSYdagwYepljW3A=";
+        "x86_64-linux" = "sha256-0RbWzQj2jrr0sS26UU+SvLwgjWu7uRMw+RHgXEPhEPM=";
+        "aarch64-linux" = "sha256-3hDr7mvPJnboaEXBWTeb7MOz1idSqcvuXuejGdPE4fU=";
+        "x86_64-darwin" = "sha256-IxqWFK6EVHsGd7/+6kEoYePGCVQE3+IkLP93NiOJg8E=";
+        "aarch64-darwin" = "sha256-GAr4r8dedB4FK7LJZcPrDdMhNv+QzumQzgtf4WDnr0Y=";
       };
     in
     flake-utils.lib.eachDefaultSystem (system:
