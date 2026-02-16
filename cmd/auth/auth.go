@@ -118,6 +118,14 @@ func runLogin(cmd *cobra.Command, args []string) error {
 	}
 
 	output.Success(fmt.Sprintf("Logged in successfully. Profile: %s", profName))
+
+	// After OAuth login, prompt to select an account.
+	if method == "oauth" {
+		if err := selectAccount(cfg, profName); err != nil {
+			fmt.Printf("Warning: could not set account: %v\n", err)
+		}
+	}
+
 	return nil
 }
 
@@ -388,4 +396,76 @@ func randomHex(n int) (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(b), nil
+}
+
+type accountEntry struct {
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Status string `json:"status"`
+}
+
+type accountsResponse struct {
+	Data []accountEntry `json:"data"`
+}
+
+// selectAccount fetches the user's accounts and prompts to select one.
+// If there's only one account, it's selected automatically.
+func selectAccount(cfg *config.Config, profName string) error {
+	prof := cfg.Profiles[profName]
+	token := prof.OAuthToken
+	if token == "" {
+		return nil
+	}
+
+	req, err := http.NewRequest("GET", "https://connect.mailerlite.com/api/accounts", nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to fetch accounts: %w", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to fetch accounts (HTTP %d)", resp.StatusCode)
+	}
+
+	var accounts accountsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&accounts); err != nil {
+		return fmt.Errorf("failed to parse accounts: %w", err)
+	}
+
+	if len(accounts.Data) == 0 {
+		return nil
+	}
+
+	var accountID string
+	if len(accounts.Data) == 1 {
+		accountID = accounts.Data[0].ID
+		output.Success(fmt.Sprintf("Account selected: %s (%s)", accounts.Data[0].Name, accountID))
+	} else {
+		if !prompt.IsInteractive() {
+			// Non-interactive: pick the first account.
+			accountID = accounts.Data[0].ID
+		} else {
+			labels := make([]string, len(accounts.Data))
+			values := make([]string, len(accounts.Data))
+			for i, a := range accounts.Data {
+				labels[i] = fmt.Sprintf("%s (%s)", a.Name, a.ID)
+				values[i] = a.ID
+			}
+			accountID, err = prompt.SelectLabeled("Select account", labels, values)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	prof.AccountID = accountID
+	cfg.Profiles[profName] = prof
+	return config.Save(cfg)
 }
