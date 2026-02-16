@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - run: go build ./...
+      - run: go test ./...
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - uses: golangci/golangci-lint-action@v7
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Install quill
+        run: curl -sSfL https://get.anchore.io/quill | sudo sh -s -- -b /usr/local/bin
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          QUILL_SIGN_P12: ${{ secrets.QUILL_SIGN_P12 }}
+          QUILL_SIGN_PASSWORD: ${{ secrets.QUILL_SIGN_PASSWORD }}
+          QUILL_NOTARY_KEY: ${{ secrets.QUILL_NOTARY_KEY }}
+          QUILL_NOTARY_KEY_ID: ${{ secrets.QUILL_NOTARY_KEY_ID }}
+          QUILL_NOTARY_ISSUER: ${{ secrets.QUILL_NOTARY_ISSUER }}
+
+  update-flake:
+    name: Update flake.nix
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - name: Download release artifacts and compute hashes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          # Download all tarballs
+          gh release download "${GITHUB_REF_NAME}" \
+            --pattern "mailerlite-cli_${VERSION}_*.tar.gz" \
+            --dir ./artifacts
+
+          # Use sri format for nix
+          HASH_LINUX_AMD64="sha256-$(openssl dgst -sha256 -binary ./artifacts/mailerlite-cli_${VERSION}_linux_amd64.tar.gz | base64)"
+          HASH_LINUX_ARM64="sha256-$(openssl dgst -sha256 -binary ./artifacts/mailerlite-cli_${VERSION}_linux_arm64.tar.gz | base64)"
+          HASH_DARWIN_AMD64="sha256-$(openssl dgst -sha256 -binary ./artifacts/mailerlite-cli_${VERSION}_darwin_amd64.tar.gz | base64)"
+          HASH_DARWIN_ARM64="sha256-$(openssl dgst -sha256 -binary ./artifacts/mailerlite-cli_${VERSION}_darwin_arm64.tar.gz | base64)"
+
+          # Update version
+          sed -i "s/version = \".*\";/version = \"${VERSION}\";/" flake.nix
+
+          # Update hashes
+          sed -i "s|\"x86_64-linux\" = \".*\";|\"x86_64-linux\" = \"${HASH_LINUX_AMD64}\";|" flake.nix
+          sed -i "s|\"aarch64-linux\" = \".*\";|\"aarch64-linux\" = \"${HASH_LINUX_ARM64}\";|" flake.nix
+          sed -i "s|\"x86_64-darwin\" = \".*\";|\"x86_64-darwin\" = \"${HASH_DARWIN_AMD64}\";|" flake.nix
+          sed -i "s|\"aarch64-darwin\" = \".*\";|\"aarch64-darwin\" = \"${HASH_DARWIN_ARM64}\";|" flake.nix
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add flake.nix
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update flake.nix for ${GITHUB_REF_NAME}"
+          git push

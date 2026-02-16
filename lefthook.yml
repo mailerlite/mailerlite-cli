@@ -1,0 +1,8 @@
+pre-commit:
+  commands:
+    lint:
+      glob: "*.go"
+      run: golangci-lint run --fix
+    build:
+      glob: "*.go"
+      run: go build ./...

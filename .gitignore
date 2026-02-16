@@ -1,0 +1,4 @@
+mailerlite-cli
+dist/
+.claude/settings.local.json
+test_cli.sh
