@@ -29,7 +29,7 @@ var listCmd = &cobra.Command{
 }
 
 func runList(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func runList(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Timezone.List(ctx)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {

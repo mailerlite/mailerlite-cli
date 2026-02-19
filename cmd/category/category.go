@@ -63,7 +63,7 @@ var listCmd = &cobra.Command{
 			return err
 		}
 
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ var getCmd = &cobra.Command{
 			return err
 		}
 
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -151,7 +151,7 @@ var createCmd = &cobra.Command{
 			return err
 		}
 
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -192,7 +192,7 @@ var updateCmd = &cobra.Command{
 			return err
 		}
 
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -234,7 +234,7 @@ var deleteCmd = &cobra.Command{
 			return err
 		}
 
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -261,7 +261,7 @@ var countCmd = &cobra.Command{
 			return err
 		}
 
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -294,7 +294,7 @@ var productsCmd = &cobra.Command{
 			return err
 		}
 
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -338,7 +338,7 @@ var assignProductCmd = &cobra.Command{
 			return err
 		}
 
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -374,7 +374,7 @@ var unassignProductCmd = &cobra.Command{
 			return err
 		}
 
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}

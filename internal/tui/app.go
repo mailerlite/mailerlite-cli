@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mailerlite/mailerlite-cli/internal/sdkclient"
 	"github.com/mailerlite/mailerlite-cli/internal/tui/components"
 	"github.com/mailerlite/mailerlite-cli/internal/tui/theme"
 	"github.com/mailerlite/mailerlite-cli/internal/tui/types"
@@ -43,9 +42,9 @@ const (
 // App is the main TUI application model.
 type App struct {
 	// SDK
-	client    *mailerlite.Client
-	transport *sdkclient.CLITransport
-	profile   string
+	client *mailerlite.Client
+
+	profile string
 
 	// Components
 	sidebar   components.Sidebar
@@ -72,12 +71,12 @@ type App struct {
 }
 
 // NewApp creates a new TUI application.
-func NewApp(client *mailerlite.Client, transport *sdkclient.CLITransport, profile string) *App {
+func NewApp(client *mailerlite.Client, profile string) *App {
 	keys := DefaultKeyMap()
 
 	app := &App{
-		client:    client,
-		transport: transport,
+		client: client,
+
 		profile:   profile,
 		keys:      keys,
 		sidebar:   components.NewSidebar(),
@@ -88,11 +87,11 @@ func NewApp(client *mailerlite.Client, transport *sdkclient.CLITransport, profil
 	}
 
 	// Initialize views
-	app.subscribers = views.NewSubscribersView(client, transport)
-	app.campaigns = views.NewCampaignsView(client, transport)
-	app.automations = views.NewAutomationsView(client, transport)
-	app.groups = views.NewGroupsView(client, transport)
-	app.forms = views.NewFormsView(client, transport)
+	app.subscribers = views.NewSubscribersView(client)
+	app.campaigns = views.NewCampaignsView(client)
+	app.automations = views.NewAutomationsView(client)
+	app.groups = views.NewGroupsView(client)
+	app.forms = views.NewFormsView(client)
 
 	// Set initial focus
 	app.sidebar.SetFocused(false)

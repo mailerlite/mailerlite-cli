@@ -45,7 +45,7 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List shops",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -87,7 +87,7 @@ var getCmd = &cobra.Command{
 	Short: "Get shop details",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -124,7 +124,7 @@ var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new shop",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -165,7 +165,7 @@ var updateCmd = &cobra.Command{
 	Short: "Update a shop",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -206,7 +206,7 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete a shop",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}
@@ -228,7 +228,7 @@ var countCmd = &cobra.Command{
 	Use:   "count",
 	Short: "Get total shop count",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		httpClient, apiKey, _, err := cmdutil.RawHTTPClient(cmd)
+		httpClient, apiKey, err := cmdutil.RawHTTPClient(cmd)
 		if err != nil {
 			return err
 		}

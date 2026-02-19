@@ -45,10 +45,10 @@ func SetVersion(v string) {
 // NewSDKClient creates a mailerlite-go SDK client with CLI-specific behavior
 // injected via a custom HTTP transport (retry, verbose, user-agent, base URL).
 // Returns both the SDK client and the transport (needed for error body access).
-func NewSDKClient(cmd *cobra.Command) (*mailerlite.Client, *sdkclient.CLITransport, error) {
+func NewSDKClient(cmd *cobra.Command) (*mailerlite.Client, error) {
 	token, err := config.GetToken(ProfileFlag(cmd))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	transport := &sdkclient.CLITransport{
@@ -67,14 +67,14 @@ func NewSDKClient(cmd *cobra.Command) (*mailerlite.Client, *sdkclient.CLITranspo
 		Transport: transport,
 	})
 
-	return ml, transport, nil
+	return ml, nil
 }
 
 // RawHTTPClient creates an *http.Client and API key for raw HTTP e-commerce calls.
-func RawHTTPClient(cmd *cobra.Command) (*http.Client, string, *sdkclient.CLITransport, error) {
+func RawHTTPClient(cmd *cobra.Command) (*http.Client, string, error) {
 	token, err := config.GetToken(ProfileFlag(cmd))
 	if err != nil {
-		return nil, "", nil, err
+		return nil, "", err
 	}
 
 	transport := &sdkclient.CLITransport{
@@ -88,7 +88,7 @@ func RawHTTPClient(cmd *cobra.Command) (*http.Client, string, *sdkclient.CLITran
 		Transport: transport,
 	}
 
-	return httpClient, token, transport, nil
+	return httpClient, token, nil
 }
 
 // ParseDate accepts a date string in YYYY-MM-DD format or a raw unix

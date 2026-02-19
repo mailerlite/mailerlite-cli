@@ -68,8 +68,8 @@ var (
 
 // FormsView displays the list of forms.
 type FormsView struct {
-	client        *mailerlite.Client
-	transport     *sdkclient.CLITransport
+	client *mailerlite.Client
+
 	table         components.Table
 	detail        components.DetailPanel
 	forms         []mailerlite.Form
@@ -83,7 +83,7 @@ type FormsView struct {
 }
 
 // NewFormsView creates a new forms view.
-func NewFormsView(client *mailerlite.Client, transport *sdkclient.CLITransport) FormsView {
+func NewFormsView(client *mailerlite.Client) FormsView {
 	columns := []components.Column{
 		{Title: "NAME", Width: 28},
 		{Title: "TYPE", Width: 12},
@@ -95,8 +95,8 @@ func NewFormsView(client *mailerlite.Client, transport *sdkclient.CLITransport) 
 	table.SetEmptyMessage("No forms found.")
 
 	return FormsView{
-		client:    client,
-		transport: transport,
+		client: client,
+
 		table:     table,
 		loading:   true,
 		activeTab: FormTypePopup,
@@ -153,7 +153,7 @@ func (v FormsView) Fetch() tea.Cmd {
 				Limit: perPage,
 			})
 			if err != nil {
-				return nil, false, sdkclient.WrapError(v.transport, err)
+				return nil, false, sdkclient.WrapError(err)
 			}
 			return root.Data, root.Links.Next != "", nil
 		}, 100)

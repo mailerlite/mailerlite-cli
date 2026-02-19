@@ -23,8 +23,8 @@ func enabledBadge(enabled bool) string {
 
 // AutomationsView displays the list of automations.
 type AutomationsView struct {
-	client        *mailerlite.Client
-	transport     *sdkclient.CLITransport
+	client *mailerlite.Client
+
 	table         components.Table
 	detail        components.DetailPanel
 	automations   []mailerlite.Automation
@@ -37,7 +37,7 @@ type AutomationsView struct {
 }
 
 // NewAutomationsView creates a new automations view.
-func NewAutomationsView(client *mailerlite.Client, transport *sdkclient.CLITransport) AutomationsView {
+func NewAutomationsView(client *mailerlite.Client) AutomationsView {
 	columns := []components.Column{
 		{Title: "NAME", Width: 30},
 		{Title: "ENABLED", Width: 9},
@@ -49,10 +49,10 @@ func NewAutomationsView(client *mailerlite.Client, transport *sdkclient.CLITrans
 	table.SetEmptyMessage("No automations found.")
 
 	return AutomationsView{
-		client:    client,
-		transport: transport,
-		table:     table,
-		loading:   true,
+		client: client,
+
+		table:   table,
+		loading: true,
 	}
 }
 
@@ -104,7 +104,7 @@ func (v AutomationsView) Fetch() tea.Cmd {
 				Limit: perPage,
 			})
 			if err != nil {
-				return nil, false, sdkclient.WrapError(v.transport, err)
+				return nil, false, sdkclient.WrapError(err)
 			}
 			return root.Data, root.Links.Next != "", nil
 		}, 100)

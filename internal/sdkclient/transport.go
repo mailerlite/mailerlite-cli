@@ -2,13 +2,13 @@ package sdkclient
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"math"
 	"net/http"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -32,26 +32,6 @@ type CLITransport struct {
 	Verbose   bool
 	BaseURL   string // if set, replaces the SDK's hardcoded base URL
 	AccountID string // if set, sends X-Acc-Id header on all requests
-
-	mu       sync.Mutex
-	lastBody []byte // stores last error response body
-}
-
-// LastErrorBody returns the most recently captured error response body
-// and clears it. This is used by WrapError to extract field-level
-// validation details that the SDK discards.
-func (t *CLITransport) LastErrorBody() []byte {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	b := t.lastBody
-	t.lastBody = nil
-	return b
-}
-
-func (t *CLITransport) setLastBody(b []byte) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	t.lastBody = b
 }
 
 func (t *CLITransport) base() http.RoundTripper {
@@ -119,6 +99,9 @@ func (t *CLITransport) RoundTrip(req *http.Request) (*http.Response, error) {
 			if t.Verbose {
 				fmt.Printf("<-- error: %v\n", lastErr)
 			}
+			if attempt == maxRetries {
+				break
+			}
 			backoff := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			time.Sleep(backoff)
 			continue
@@ -138,7 +121,10 @@ func (t *CLITransport) RoundTrip(req *http.Request) (*http.Response, error) {
 			}
 
 			// Store for WrapError.
-			t.setLastBody(respBody)
+			if resp.Header == nil {
+				resp.Header = make(http.Header)
+			}
+			resp.Header.Set("X-CLI-Error-Body", base64.StdEncoding.EncodeToString(respBody))
 
 			// For retryable errors, retry.
 			if resp.StatusCode == 429 || resp.StatusCode >= 500 {

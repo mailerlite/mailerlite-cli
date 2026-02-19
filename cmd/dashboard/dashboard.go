@@ -23,7 +23,7 @@ Press ? for help or q to quit.`,
 }
 
 func runDashboard(cmd *cobra.Command, _ []string) error {
-	client, transport, err := cmdutil.NewSDKClient(cmd)
+	client, err := cmdutil.NewSDKClient(cmd)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func runDashboard(cmd *cobra.Command, _ []string) error {
 		profile = "default"
 	}
 
-	app := tui.NewApp(client, transport, profile)
+	app := tui.NewApp(client, profile)
 
 	p := tea.NewProgram(app, tea.WithAltScreen())
 	_, err = p.Run()

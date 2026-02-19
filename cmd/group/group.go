@@ -51,7 +51,7 @@ var listCmd = &cobra.Command{
 }
 
 func runList(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func runList(c *cobra.Command, args []string) error {
 
 		root, _, err := ml.Group.List(ctx, opts)
 		if err != nil {
-			return nil, false, sdkclient.WrapError(transport, err)
+			return nil, false, sdkclient.WrapError(err)
 		}
 
 		hasNext := !root.Links.IsLastPage()
@@ -112,7 +112,7 @@ var createCmd = &cobra.Command{
 }
 
 func runCreate(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func runCreate(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Group.Create(ctx, name)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -147,7 +147,7 @@ var updateCmd = &cobra.Command{
 }
 
 func runUpdate(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func runUpdate(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Group.Update(ctx, args[0], name)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -182,7 +182,7 @@ var deleteCmd = &cobra.Command{
 }
 
 func runDelete(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func runDelete(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	_, err = ml.Group.Delete(ctx, args[0])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	output.Success("Group " + args[0] + " deleted successfully.")
@@ -217,7 +217,7 @@ var subscribersCmd = &cobra.Command{
 }
 
 func runSubscribers(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -236,7 +236,7 @@ func runSubscribers(c *cobra.Command, args []string) error {
 
 		root, _, err := ml.Group.Subscribers(ctx, opts)
 		if err != nil {
-			return nil, false, sdkclient.WrapError(transport, err)
+			return nil, false, sdkclient.WrapError(err)
 		}
 
 		hasNext := !root.Links.IsLastPage()
@@ -278,7 +278,7 @@ var assignCmd = &cobra.Command{
 }
 
 func runAssign(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -286,7 +286,7 @@ func runAssign(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	_, _, err = ml.Group.Assign(ctx, args[0], args[1])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	output.Success(fmt.Sprintf("Subscriber %s assigned to group %s successfully.", args[1], args[0]))
@@ -303,7 +303,7 @@ var unassignCmd = &cobra.Command{
 }
 
 func runUnassign(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -311,7 +311,7 @@ func runUnassign(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	_, err = ml.Group.UnAssign(ctx, args[0], args[1])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	output.Success(fmt.Sprintf("Subscriber %s unassigned from group %s successfully.", args[1], args[0]))

@@ -14,8 +14,8 @@ import (
 
 // CampaignsView displays the list of campaigns.
 type CampaignsView struct {
-	client        *mailerlite.Client
-	transport     *sdkclient.CLITransport
+	client *mailerlite.Client
+
 	table         components.Table
 	detail        components.DetailPanel
 	campaigns     []mailerlite.Campaign
@@ -28,7 +28,7 @@ type CampaignsView struct {
 }
 
 // NewCampaignsView creates a new campaigns view.
-func NewCampaignsView(client *mailerlite.Client, transport *sdkclient.CLITransport) CampaignsView {
+func NewCampaignsView(client *mailerlite.Client) CampaignsView {
 	columns := []components.Column{
 		{Title: "NAME", Width: 28},
 		{Title: "TYPE", Width: 10},
@@ -41,10 +41,10 @@ func NewCampaignsView(client *mailerlite.Client, transport *sdkclient.CLITranspo
 	table.SetEmptyMessage("No campaigns found.")
 
 	return CampaignsView{
-		client:    client,
-		transport: transport,
-		table:     table,
-		loading:   true,
+		client: client,
+
+		table:   table,
+		loading: true,
 	}
 }
 
@@ -96,7 +96,7 @@ func (v CampaignsView) Fetch() tea.Cmd {
 				Limit: perPage,
 			})
 			if err != nil {
-				return nil, false, sdkclient.WrapError(v.transport, err)
+				return nil, false, sdkclient.WrapError(err)
 			}
 			return root.Data, root.Links.Next != "", nil
 		}, 100)

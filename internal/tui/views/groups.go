@@ -14,8 +14,8 @@ import (
 
 // GroupsView displays the list of groups.
 type GroupsView struct {
-	client        *mailerlite.Client
-	transport     *sdkclient.CLITransport
+	client *mailerlite.Client
+
 	table         components.Table
 	detail        components.DetailPanel
 	groups        []mailerlite.Group
@@ -28,7 +28,7 @@ type GroupsView struct {
 }
 
 // NewGroupsView creates a new groups view.
-func NewGroupsView(client *mailerlite.Client, transport *sdkclient.CLITransport) GroupsView {
+func NewGroupsView(client *mailerlite.Client) GroupsView {
 	columns := []components.Column{
 		{Title: "NAME", Width: 28},
 		{Title: "ACTIVE", Width: 8},
@@ -41,10 +41,10 @@ func NewGroupsView(client *mailerlite.Client, transport *sdkclient.CLITransport)
 	table.SetEmptyMessage("No groups found.")
 
 	return GroupsView{
-		client:    client,
-		transport: transport,
-		table:     table,
-		loading:   true,
+		client: client,
+
+		table:   table,
+		loading: true,
 	}
 }
 
@@ -96,7 +96,7 @@ func (v GroupsView) Fetch() tea.Cmd {
 				Limit: perPage,
 			})
 			if err != nil {
-				return nil, false, sdkclient.WrapError(v.transport, err)
+				return nil, false, sdkclient.WrapError(err)
 			}
 			return root.Data, root.Links.Next != "", nil
 		}, 100)

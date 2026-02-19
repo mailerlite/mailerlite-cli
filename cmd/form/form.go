@@ -47,7 +47,7 @@ var listCmd = &cobra.Command{
 }
 
 func runList(c *cobra.Command, _ []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func runList(c *cobra.Command, _ []string) error {
 
 		root, _, err := ml.Form.List(ctx, opts)
 		if err != nil {
-			return nil, false, sdkclient.WrapError(transport, err)
+			return nil, false, sdkclient.WrapError(err)
 		}
 
 		return root.Data, !root.Links.IsLastPage(), nil
@@ -113,7 +113,7 @@ var getCmd = &cobra.Command{
 }
 
 func runGet(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func runGet(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Form.Get(ctx, args[0])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -156,7 +156,7 @@ var updateCmd = &cobra.Command{
 }
 
 func runUpdate(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func runUpdate(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Form.Update(ctx, args[0], name)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -191,7 +191,7 @@ var deleteCmd = &cobra.Command{
 }
 
 func runDelete(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -209,7 +209,7 @@ func runDelete(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	_, err = ml.Form.Delete(ctx, args[0])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	output.Success("Form " + args[0] + " deleted successfully.")
@@ -226,7 +226,7 @@ var subscribersCmd = &cobra.Command{
 }
 
 func runSubscribers(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -244,7 +244,7 @@ func runSubscribers(c *cobra.Command, args []string) error {
 
 		root, _, err := ml.Form.Subscribers(ctx, opts)
 		if err != nil {
-			return nil, false, sdkclient.WrapError(transport, err)
+			return nil, false, sdkclient.WrapError(err)
 		}
 
 		return root.Data, !root.Links.IsLastPage(), nil

@@ -40,7 +40,7 @@ var listCmd = &cobra.Command{
 }
 
 func runList(c *cobra.Command, _ []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func runList(c *cobra.Command, _ []string) error {
 
 		root, _, err := ml.Automation.List(ctx, opts)
 		if err != nil {
-			return nil, false, sdkclient.WrapError(transport, err)
+			return nil, false, sdkclient.WrapError(err)
 		}
 
 		return root.Data, !root.Links.IsLastPage(), nil
@@ -111,7 +111,7 @@ var getCmd = &cobra.Command{
 }
 
 func runGet(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func runGet(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Automation.Get(ctx, args[0])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -168,7 +168,7 @@ var subscribersCmd = &cobra.Command{
 }
 
 func runSubscribers(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func runSubscribers(c *cobra.Command, args []string) error {
 
 		root, _, err := ml.Automation.Subscribers(ctx, opts)
 		if err != nil {
-			return nil, false, sdkclient.WrapError(transport, err)
+			return nil, false, sdkclient.WrapError(err)
 		}
 
 		return root.Data, !root.Links.IsLastPage(), nil

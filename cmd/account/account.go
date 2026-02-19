@@ -47,7 +47,7 @@ type accountsResponse struct {
 }
 
 func fetchAccounts(cmd *cobra.Command) ([]accountEntry, error) {
-	httpClient, token, _, err := cmdutil.RawHTTPClient(cmd)
+	httpClient, token, err := cmdutil.RawHTTPClient(cmd)
 	if err != nil {
 		return nil, err
 	}

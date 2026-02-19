@@ -45,7 +45,7 @@ var listCmd = &cobra.Command{
 }
 
 func runList(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func runList(c *cobra.Command, args []string) error {
 		}
 		root, _, err := ml.Field.List(ctx, opts)
 		if err != nil {
-			return nil, false, sdkclient.WrapError(transport, err)
+			return nil, false, sdkclient.WrapError(err)
 		}
 		return root.Data, !root.Links.IsLastPage(), nil
 	}, limit)
@@ -100,7 +100,7 @@ var createCmd = &cobra.Command{
 }
 
 func runCreate(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func runCreate(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Field.Create(ctx, name, fieldType)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -141,7 +141,7 @@ var updateCmd = &cobra.Command{
 }
 
 func runUpdate(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -155,7 +155,7 @@ func runUpdate(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Field.Update(ctx, args[0], name)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -176,7 +176,7 @@ var deleteCmd = &cobra.Command{
 }
 
 func runDelete(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -194,7 +194,7 @@ func runDelete(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	_, err = ml.Field.Delete(ctx, args[0])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	output.Success("Field " + args[0] + " deleted successfully.")

@@ -38,8 +38,8 @@ func statusBadge(status string) string {
 
 // SubscribersView displays the list of subscribers.
 type SubscribersView struct {
-	client        *mailerlite.Client
-	transport     *sdkclient.CLITransport
+	client *mailerlite.Client
+
 	table         components.Table
 	detail        components.DetailPanel
 	subscribers   []mailerlite.Subscriber
@@ -52,7 +52,7 @@ type SubscribersView struct {
 }
 
 // NewSubscribersView creates a new subscribers view.
-func NewSubscribersView(client *mailerlite.Client, transport *sdkclient.CLITransport) SubscribersView {
+func NewSubscribersView(client *mailerlite.Client) SubscribersView {
 	columns := []components.Column{
 		{Title: "EMAIL", Width: 30},
 		{Title: "STATUS", Width: 10},
@@ -65,10 +65,10 @@ func NewSubscribersView(client *mailerlite.Client, transport *sdkclient.CLITrans
 	table.SetEmptyMessage("No subscribers found.")
 
 	return SubscribersView{
-		client:    client,
-		transport: transport,
-		table:     table,
-		loading:   true,
+		client: client,
+
+		table:   table,
+		loading: true,
 	}
 }
 
@@ -120,7 +120,7 @@ func (v SubscribersView) Fetch() tea.Cmd {
 				Limit:  perPage,
 			})
 			if err != nil {
-				return nil, "", sdkclient.WrapError(v.transport, err)
+				return nil, "", sdkclient.WrapError(err)
 			}
 			return root.Data, root.Meta.NextCursor, nil
 		}, 100)

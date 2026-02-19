@@ -76,7 +76,7 @@ var listCmd = &cobra.Command{
 }
 
 func runList(c *cobra.Command, _ []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func runList(c *cobra.Command, _ []string) error {
 
 		root, _, err := ml.Campaign.List(ctx, opts)
 		if err != nil {
-			return nil, false, sdkclient.WrapError(transport, err)
+			return nil, false, sdkclient.WrapError(err)
 		}
 
 		return root.Data, !root.Links.IsLastPage(), nil
@@ -148,7 +148,7 @@ var getCmd = &cobra.Command{
 }
 
 func runGet(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func runGet(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Campaign.Get(ctx, args[0])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -201,7 +201,7 @@ var createCmd = &cobra.Command{
 }
 
 func runCreate(c *cobra.Command, _ []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -253,7 +253,7 @@ func runCreate(c *cobra.Command, _ []string) error {
 
 	result, _, err := ml.Campaign.Create(ctx, opts)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -274,7 +274,7 @@ var updateCmd = &cobra.Command{
 }
 
 func runUpdate(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -283,7 +283,7 @@ func runUpdate(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	existing, _, err := ml.Campaign.Get(ctx, args[0])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	name := existing.Data.Name
@@ -335,7 +335,7 @@ func runUpdate(c *cobra.Command, args []string) error {
 
 	result, _, err := ml.Campaign.Update(ctx, args[0], opts)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -356,7 +356,7 @@ var scheduleCmd = &cobra.Command{
 }
 
 func runSchedule(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -384,7 +384,7 @@ func runSchedule(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Campaign.Schedule(ctx, args[0], opts)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -405,7 +405,7 @@ var cancelCmd = &cobra.Command{
 }
 
 func runCancel(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -413,7 +413,7 @@ func runCancel(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Campaign.Cancel(ctx, args[0])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -434,7 +434,7 @@ var subscribersCmd = &cobra.Command{
 }
 
 func runSubscribers(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -452,7 +452,7 @@ func runSubscribers(c *cobra.Command, args []string) error {
 
 		root, _, err := ml.Campaign.Subscribers(ctx, opts)
 		if err != nil {
-			return nil, false, sdkclient.WrapError(transport, err)
+			return nil, false, sdkclient.WrapError(err)
 		}
 
 		return root.Data, !root.Links.IsLastPage(), nil
@@ -490,7 +490,7 @@ var languagesCmd = &cobra.Command{
 }
 
 func runLanguages(c *cobra.Command, _ []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -498,7 +498,7 @@ func runLanguages(c *cobra.Command, _ []string) error {
 	ctx := context.Background()
 	result, _, err := ml.Campaign.Languages(ctx)
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	if cmdutil.JSONFlag(c) {
@@ -530,7 +530,7 @@ var deleteCmd = &cobra.Command{
 }
 
 func runDelete(c *cobra.Command, args []string) error {
-	ml, transport, err := cmdutil.NewSDKClient(c)
+	ml, err := cmdutil.NewSDKClient(c)
 	if err != nil {
 		return err
 	}
@@ -548,7 +548,7 @@ func runDelete(c *cobra.Command, args []string) error {
 	ctx := context.Background()
 	_, err = ml.Campaign.Delete(ctx, args[0])
 	if err != nil {
-		return sdkclient.WrapError(transport, err)
+		return sdkclient.WrapError(err)
 	}
 
 	output.Success("Campaign " + args[0] + " deleted successfully.")
