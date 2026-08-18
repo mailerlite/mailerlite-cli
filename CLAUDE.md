@@ -2,75 +2,72 @@
 
 ## Project
 
-MailerLite CLI — a Go CLI and interactive TUI dashboard for the MailerLite API.
+MailerLite CLI — a Rust CLI and interactive TUI dashboard for the MailerLite API.
 
-Module: `github.com/mailerlite/mailerlite-cli`
-Go version: 1.25.5
+Crate: `mailerlite` (binary), Rust 2021 edition.
 
 ## Build & Test
 
 ```bash
-go build ./...          # build all packages
-go test ./...           # run all tests
-go build -o mailerlite . # build binary
+cargo build             # debug build
+cargo test              # run all tests
+cargo build --release   # release binary at target/release/mailerlite
 ```
 
 ## Lint & Format
 
 ```bash
-gofmt -w .              # format all Go files
-golangci-lint run       # lint (used in CI and pre-commit hooks)
-golangci-lint run --fix # lint with auto-fix
+cargo fmt                                  # format all Rust files
+cargo clippy --all-targets -- -D warnings  # lint (used in CI and pre-commit hooks)
 ```
 
-Always run `gofmt -w .` and `golangci-lint run` after making changes. CI runs both `golangci-lint run` and `go build ./...` on every push/PR.
+Always run `cargo fmt` and `cargo clippy` after making changes. CI runs fmt check, clippy, `cargo build`, and `cargo test` on pushes to main and PRs.
 
 ## Project Structure
 
 ```
-main.go                     # entry point
-cmd/                        # cobra commands, one subdir per feature
-  root.go                   # root command, registers all subcommands
-  dashboard/                # TUI launcher
-  subscriber/, group/...    # ~20 command groups
-  shop/, product/, ...      # e-commerce commands (raw HTTP)
-internal/
-  config/                   # YAML config + multi-profile management
-  sdkclient/                # SDK wrapper: retry, rate-limit, verbose logging
-  output/                   # table/JSON/plain formatters
-  prompt/                   # interactive prompts (charmbracelet/huh)
-  cmdutil/                  # flag helpers, SDK client factory
-  ecommerce/                # e-commerce types (raw HTTP endpoints)
-  tui/                      # bubbletea TUI dashboard
-    app.go                  # main app model
-    keys.go                 # key bindings
-    theme/                  # centralized color palette (AdaptiveColor)
+src/
+  main.rs                   # entry point (restores SIGPIPE, exits with cli::run())
+  cli.rs                    # clap root: global flags, Ctx, subcommand dispatch, version
+  config.rs                 # YAML config + multi-profile management + OAuth refresh
+  api.rs                    # HTTP client: retry, rate-limit, verbose logging, pagination
+  output.rs                 # table/JSON/plain formatters, NO_COLOR support
+  prompt.rs                 # interactive prompts (inquire)
+  util.rs                   # JSON field extraction (jstr/jint/jpath), key=value parsing
+  commands/                 # one module per command group (~20 groups)
+    subscriber.rs           # canonical pattern: Cmd (clap::Args) + Sub enum + run(ctx, cmd)
+    shop.rs, product.rs ... # e-commerce groups (raw /ecommerce/... endpoints)
+  tui/                      # ratatui dashboard
+    mod.rs                  # entry: run(ctx), terminal lifecycle + panic hook
+    app.rs                  # main app state and event loop
+    keys.rs                 # key bindings
+    theme.rs                # centralized color palette
     components/             # sidebar, table, statusbar, help, spinner, detail
     views/                  # subscribers, campaigns, automations, groups, forms
-    types/                  # shared message types and data structs
 ```
 
 ## Key Dependencies
 
-- `github.com/mailerlite/mailerlite-go` — official SDK
-- `github.com/spf13/cobra` — CLI framework
-- `github.com/charmbracelet/bubbletea` — TUI framework
-- `github.com/charmbracelet/lipgloss` — terminal styling
-- `github.com/charmbracelet/huh` — interactive prompts
+- `clap` — CLI framework (derive)
+- `ureq` — blocking HTTP client
+- `ratatui` + `crossterm` — TUI framework
+- `inquire` — interactive prompts
+- `serde` / `serde_json` / `serde_yaml` — config and API payloads
 
 ## Architecture Notes
 
-- Commands follow pattern: `cmd/<feature>/<feature>.go` with cobra command, subcommands via `init()`, and handler functions.
-- SDK client uses a custom `CLITransport` wrapping the HTTP client with retry (3 max, exponential backoff), rate-limit handling (429 + Retry-After), and verbose request logging.
-- Config stored at `~/.config/mailerlite/config.yaml` with multi-profile support. Token resolution: env var `MAILERLITE_API_TOKEN` > `--profile` flag > active profile > first profile.
-- E-commerce commands (shop, product, category, customer, order, cart, cartitem, import) use raw HTTP calls via `sdkclient.DoRaw()` since these endpoints aren't in the SDK.
-- TUI colors are defined in `internal/tui/theme/theme.go` as `lipgloss.AdaptiveColor` values for light/dark terminal support. Use 256-palette values (16-255) for backgrounds and critical text.
-- Output supports `--json` flag for machine-readable output and respects `NO_COLOR` env var.
+- Command modules follow the pattern in `src/commands/subscriber.rs`: `Cmd` struct deriving `clap::Args` with a `Sub` subcommand enum, plus `run(ctx: &Ctx, cmd: Cmd) -> anyhow::Result<()>`.
+- `api::Client` handles retry (3 max, exponential backoff), rate-limit handling (429 + Retry-After), verbose request logging, the `X-Acc-Id` account header, and `MAILERLITE_API_BASE_URL` override. All endpoints go through it — there is no SDK; responses are `serde_json::Value` and display fields are extracted with `util::jstr`/`jint`/`jpath`.
+- Config stored at `~/.config/mailerlite/config.yaml` with multi-profile support. Token resolution: env var `MAILERLITE_API_TOKEN` > `--profile` flag > active profile > first profile. OAuth tokens auto-refresh 5 minutes before expiry.
+- Pagination helpers in `api.rs`: `fetch_all_paged` (page numbers), `fetch_all_cursor` (string cursor, subscribers), `fetch_all_after` (integer cursor, segment subscribers).
+- TUI colors live in `src/tui/theme.rs`. Data loading is non-blocking: background `std::thread` per fetch sending messages over `std::sync::mpsc`.
+- Output supports `--json` (prints the raw API response) and respects the `NO_COLOR` env var.
+- Version: `Cargo.toml` is authoritative (`CARGO_PKG_VERSION`); `build.rs` stamps the git commit and date into `MAILERLITE_COMMIT`/`MAILERLITE_BUILD_DATE`.
 
 ## Release
 
-Tags matching `v*` trigger GoReleaser via `.github/workflows/release.yml`. Builds for Linux/macOS/Windows.
+Releases use [cargo-dist](https://opensource.axo.dev/cargo-dist/) (`dist-workspace.toml`). Version tags (e.g. `v2.0.0`) MUST match the version in `Cargo.toml`; pushing the tag triggers `.github/workflows/release.yml` (generated by `dist init` — regenerate, do not hand-edit). It builds native binaries for Linux/macOS/Windows, publishes shell/PowerShell installers, pushes a Homebrew formula to `mailerlite/homebrew-tap`, and runs the `update-flake` job to refresh `flake.nix` hashes. CI quality gates (`ci.yml`) run on pushes to main and PRs.
 
 ## Pre-commit Hooks
 
-Configured via `lefthook.yml`: runs `golangci-lint run --fix` and `go build ./...` before each commit.
+Configured via `lefthook.yml`: runs `cargo fmt` (staging fixes) and `cargo clippy --all-targets -- -D warnings` before each commit.

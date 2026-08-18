@@ -1,0 +1,38 @@
+[package]
+name = "mailerlite"
+version = "2.0.0"
+edition = "2021"
+description = "Command-line interface for the MailerLite API"
+homepage = "https://github.com/mailerlite/mailerlite-cli"
+repository = "https://github.com/mailerlite/mailerlite-cli"
+license = "MIT"
+build = "build.rs"
+
+[dependencies]
+anyhow = "1"
+base64 = "0.22"
+chrono = "0.4"
+clap = { version = "4", features = ["derive"] }
+clap_complete = "4"
+crossterm = "0.28"
+inquire = "0.7"
+libc = "0.2"
+rand = "0.8"
+ratatui = "0.29"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+sha2 = "0.10"
+tiny_http = "0.12"
+unicode-width = "0.2"
+ureq = { version = "2", features = ["json"] }
+webbrowser = "1"
+
+[profile.release]
+lto = true
+strip = true
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"

@@ -1,56 +1,70 @@
 # MailerLite CLI
 
-A command-line interface and interactive TUI dashboard for the [MailerLite API](https://www.mailerlite.com/). Manage subscribers, campaigns, automations, groups, forms, e-commerce, and more — all from your terminal.
+A command-line interface and a TUI dashboard for the [MailerLite API](https://www.mailerlite.com/). Use it to manage subscribers, campaigns, automations, groups, forms, and e-commerce data from the terminal.
 
 ## Installation
 
 ### Homebrew
 
 ```bash
-brew install --cask mailerlite/tap/mailerlite
+brew install mailerlite/tap/mailerlite
+```
+
+### Installer script
+
+macOS and Linux:
+
+```bash
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/mailerlite/mailerlite-cli/releases/latest/download/mailerlite-installer.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/mailerlite/mailerlite-cli/releases/latest/download/mailerlite-installer.ps1 | iex"
 ```
 
 ### GitHub Releases
 
-Download pre-built binaries for Linux, macOS, and Windows from the [releases page](https://github.com/mailerlite/mailerlite-cli/releases).
+Download binaries for Linux, macOS, and Windows from the [releases page](https://github.com/mailerlite/mailerlite-cli/releases).
 
-### Go install
+### Cargo
 
 ```bash
-go install github.com/mailerlite/mailerlite-cli@latest
+cargo install --git https://github.com/mailerlite/mailerlite-cli.git
 ```
 
 ### From source
 
-Requires Go 1.25+.
+Install a Rust toolchain from [rustup.rs](https://rustup.rs) first.
 
 ```bash
 git clone https://github.com/mailerlite/mailerlite-cli.git
 cd mailerlite-cli
-go build -o mailerlite .
+cargo build --release
 ```
 
-Move the binary to somewhere on your `$PATH`:
+Move the binary to a directory on your `$PATH`:
 
 ```bash
-sudo mv mailerlite /usr/local/bin/
+sudo mv target/release/mailerlite /usr/local/bin/
 ```
 
 ### Nix
 
-Run directly without installing:
+Run the CLI without installation:
 
 ```bash
 nix run git+ssh://git@github.com/mailerlite/mailerlite-cli.git
 ```
 
-Or install into your profile:
+Install the CLI into your profile:
 
 ```bash
 nix profile install git+ssh://git@github.com/mailerlite/mailerlite-cli.git
 ```
 
-Or add to a `flake.nix`:
+Or add the CLI to a `flake.nix`:
 
 ```nix
 {
@@ -61,7 +75,7 @@ Or add to a `flake.nix`:
 
 ## Authentication
 
-The CLI supports two authentication methods: **OAuth** (recommended) and **API token**.
+The CLI has two authentication methods: **OAuth** (recommended) and **API token**.
 
 ### OAuth (recommended)
 
@@ -69,7 +83,7 @@ The CLI supports two authentication methods: **OAuth** (recommended) and **API t
 mailerlite auth login
 ```
 
-Running `mailerlite auth login` opens your browser to authorize the CLI with your MailerLite account via OAuth. This is the default and recommended method — no need to manually create or paste tokens. OAuth tokens are automatically refreshed when they expire.
+The command opens the browser and authorizes the CLI with your MailerLite account. You do not create or paste tokens - the CLI does this for you. The CLI refreshes OAuth tokens automatically when they expire.
 
 ### API Token
 
@@ -79,11 +93,11 @@ You can also authenticate with an API token:
 mailerlite auth login --method token
 ```
 
-You'll be prompted to enter your MailerLite API token. You can generate one from your [MailerLite dashboard](https://www.mailerlite.com/) under API Tokens.
+The CLI asks for your MailerLite API token. Create a token in your [MailerLite dashboard](https://www.mailerlite.com/) under API Tokens.
 
 ### Auth status and logout
 
-Check auth status:
+Show the authentication status:
 
 ```bash
 mailerlite auth status
@@ -97,7 +111,7 @@ mailerlite auth logout
 
 ### Multiple profiles
 
-You can manage multiple profiles:
+You can keep more than one profile:
 
 ```bash
 mailerlite profile add staging
@@ -106,7 +120,7 @@ mailerlite profile list
 mailerlite profile switch staging
 ```
 
-Use a specific profile for a single command:
+Use a specific profile for one command:
 
 ```bash
 mailerlite subscriber list --profile production
@@ -114,7 +128,7 @@ mailerlite subscriber list --profile production
 
 ### Multiple accounts
 
-If your OAuth credentials have access to multiple accounts:
+If your OAuth credentials have access to more than one account:
 
 ```bash
 mailerlite account list
@@ -123,7 +137,7 @@ mailerlite account switch <account_id>
 
 ### Environment variable
 
-You can also set the API token via environment variable:
+You can also set the API token with an environment variable:
 
 ```bash
 export MAILERLITE_API_TOKEN="your_token_here"
@@ -131,7 +145,7 @@ export MAILERLITE_API_TOKEN="your_token_here"
 
 ## Global flags
 
-Every command supports these flags:
+Every command accepts these flags:
 
 | Flag | Description |
 |------|-------------|
@@ -143,13 +157,13 @@ Every command supports these flags:
 
 ## Dashboard
 
-Launch an interactive TUI dashboard with vim-style keybindings:
+Start the interactive TUI dashboard:
 
 ```bash
 mailerlite dashboard
 ```
 
-The dashboard provides a lazygit-style interface with sidebar navigation between subscribers, campaigns, automations, groups, and forms. Press `?` for help or `q` to quit.
+The dashboard gives you a lazygit-style interface with vim keybindings. Use the sidebar to move between subscribers, campaigns, automations, groups, and forms. Press `?` for help. Press `q` to quit.
 
 ## Commands
 
@@ -512,10 +526,7 @@ All cart-item commands require `--shop` and `--cart`.
 # List cart items
 mailerlite cart-item list --shop <shop_id> --cart <cart_id>
 
-# Get cart item details
-mailerlite cart-item get <item_id> --shop <shop_id> --cart <cart_id>
-
-# Add an item to a cart
+# Create a cart item
 mailerlite cart-item create --shop <shop_id> --cart <cart_id> \
   --product <product_id> \
   --quantity 2 \
@@ -546,7 +557,7 @@ mailerlite import orders --shop <shop_id> --file orders.json
 
 ## Shell completion
 
-Generate shell completions for your shell:
+Generate a completion script for your shell:
 
 ```bash
 # Bash
@@ -564,14 +575,14 @@ mailerlite completion powershell | Out-String | Invoke-Expression
 
 ## JSON output
 
-Add `--json` to any command to get raw JSON output, useful for scripting:
+Add `--json` to a command to get raw JSON output. Use it in scripts:
 
 ```bash
 # Pipe to jq
 mailerlite subscriber list --json | jq '.[].email'
 
 # Extract an ID
-mailerlite group create --name "Test" --json | jq -r '.id'
+mailerlite group create --name "Test" --json | jq -r '.data.id'
 ```
 
 ## License

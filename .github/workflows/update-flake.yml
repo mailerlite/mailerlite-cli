@@ -1,0 +1,56 @@
+name: Update flake.nix
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+jobs:
+  update-flake:
+    name: Update flake.nix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - name: Download release artifacts and compute hashes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ fromJSON(inputs.plan).announcement_tag }}
+        run: |
+          VERSION="${TAG#v}"
+
+          # Download all tarballs
+          gh release download "$TAG" \
+            --pattern "mailerlite-*.tar.gz" \
+            --dir ./artifacts
+
+          # Use sri format for nix
+          sri() {
+            echo "sha256-$(openssl dgst -sha256 -binary "./artifacts/mailerlite-$1.tar.gz" | base64)"
+          }
+          HASH_LINUX_AMD64="$(sri x86_64-unknown-linux-gnu)"
+          HASH_LINUX_ARM64="$(sri aarch64-unknown-linux-gnu)"
+          HASH_DARWIN_AMD64="$(sri x86_64-apple-darwin)"
+          HASH_DARWIN_ARM64="$(sri aarch64-apple-darwin)"
+
+          # Update version
+          sed -i "s/version = \".*\";/version = \"${VERSION}\";/" flake.nix
+
+          # Update hashes
+          sed -i "s|\"x86_64-linux\" = \".*\";|\"x86_64-linux\" = \"${HASH_LINUX_AMD64}\";|" flake.nix
+          sed -i "s|\"aarch64-linux\" = \".*\";|\"aarch64-linux\" = \"${HASH_LINUX_ARM64}\";|" flake.nix
+          sed -i "s|\"x86_64-darwin\" = \".*\";|\"x86_64-darwin\" = \"${HASH_DARWIN_AMD64}\";|" flake.nix
+          sed -i "s|\"aarch64-darwin\" = \".*\";|\"aarch64-darwin\" = \"${HASH_DARWIN_ARM64}\";|" flake.nix
+      - name: Commit and push
+        env:
+          TAG: ${{ fromJSON(inputs.plan).announcement_tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add flake.nix
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: update flake.nix for ${TAG}"
+          git push
