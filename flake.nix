@@ -12,18 +12,18 @@
 
       # Map nix system to Rust target triples (cargo-dist artifact naming)
       systemMap = {
-        "x86_64-linux" = "x86_64-unknown-linux-gnu";
-        "aarch64-linux" = "aarch64-unknown-linux-gnu";
-        "x86_64-darwin" = "x86_64-apple-darwin";
-        "aarch64-darwin" = "aarch64-apple-darwin";
+        "x86_64-linux" = "sha256-Izz73HSWs/L6kpDSGFU6KQ76mUvsFuRzorCWNNarGxY=";
+        "aarch64-linux" = "sha256-292Pv9Li3I5tx8xYalMEGasP/6/cOldnPsVlyysLsps=";
+        "x86_64-darwin" = "sha256-DZByEits2ctnhzD7L0rCvG/y0Fai+1G8jeBP0Kxqos8=";
+        "aarch64-darwin" = "sha256-3mmlu4leb0QruLKFUJvJOFW154t5MQiLvXwApUdd1NE=";
       };
 
       # SHA256 hashes for each platform (updated by CI on release)
       hashes = {
-        "x86_64-linux" = "sha256-0000000000000000000000000000000000000000000=";
-        "aarch64-linux" = "sha256-0000000000000000000000000000000000000000000=";
-        "x86_64-darwin" = "sha256-0000000000000000000000000000000000000000000=";
-        "aarch64-darwin" = "sha256-0000000000000000000000000000000000000000000=";
+        "x86_64-linux" = "sha256-Izz73HSWs/L6kpDSGFU6KQ76mUvsFuRzorCWNNarGxY=";
+        "aarch64-linux" = "sha256-292Pv9Li3I5tx8xYalMEGasP/6/cOldnPsVlyysLsps=";
+        "x86_64-darwin" = "sha256-DZByEits2ctnhzD7L0rCvG/y0Fai+1G8jeBP0Kxqos8=";
+        "aarch64-darwin" = "sha256-3mmlu4leb0QruLKFUJvJOFW154t5MQiLvXwApUdd1NE=";
       };
     in
     flake-utils.lib.eachDefaultSystem (system:
