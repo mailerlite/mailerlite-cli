@@ -8,39 +8,40 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     let
-      version = "1.0.2";
+      version = "2.0.0";
 
-      # Map nix system to goreleaser naming
+      # Map nix system to Rust target triples (cargo-dist artifact naming)
       systemMap = {
-        "x86_64-linux" = { os = "linux"; arch = "amd64"; };
-        "aarch64-linux" = { os = "linux"; arch = "arm64"; };
-        "x86_64-darwin" = { os = "darwin"; arch = "amd64"; };
-        "aarch64-darwin" = { os = "darwin"; arch = "arm64"; };
+        "x86_64-linux" = "x86_64-unknown-linux-gnu";
+        "aarch64-linux" = "aarch64-unknown-linux-gnu";
+        "x86_64-darwin" = "x86_64-apple-darwin";
+        "aarch64-darwin" = "aarch64-apple-darwin";
       };
 
       # SHA256 hashes for each platform (updated by CI on release)
       hashes = {
-        "x86_64-linux" = "sha256-ZIMckB4Yu0A0Xrfe7MDgSToztoXN/ePP4MeSBzJWud8=";
-        "aarch64-linux" = "sha256-Wm5XFVh2l9voM8d8mSfYxTq4yBm00ihorsVkbio3njA=";
-        "x86_64-darwin" = "sha256-oMrmRzlJwUOMH0Dx3l44Vudr8gLr4EaMa5dpRlM82ao=";
-        "aarch64-darwin" = "sha256-elIKPI9os7J+33dXqBjhyJ3tRcKTXxCedZucz7wbuGc=";
+        "x86_64-linux" = "sha256-0000000000000000000000000000000000000000000=";
+        "aarch64-linux" = "sha256-0000000000000000000000000000000000000000000=";
+        "x86_64-darwin" = "sha256-0000000000000000000000000000000000000000000=";
+        "aarch64-darwin" = "sha256-0000000000000000000000000000000000000000000=";
       };
     in
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        platformInfo = systemMap.${system} or (throw "Unsupported system: ${system}");
+        target = systemMap.${system} or (throw "Unsupported system: ${system}");
 
         mailerlite = pkgs.stdenv.mkDerivation {
           pname = "mailerlite";
           inherit version;
 
           src = pkgs.fetchurl {
-            url = "https://github.com/mailerlite/mailerlite-cli/releases/download/v${version}/mailerlite-cli_${version}_${platformInfo.os}_${platformInfo.arch}.tar.gz";
+            url = "https://github.com/mailerlite/mailerlite-cli/releases/download/v${version}/mailerlite-${target}.tar.gz";
             sha256 = hashes.${system};
           };
 
-          sourceRoot = ".";
+          # cargo-dist tarballs unpack to a directory named after the archive
+          sourceRoot = "mailerlite-${target}";
 
           installPhase = ''
             install -Dm755 mailerlite $out/bin/mailerlite
@@ -63,8 +64,10 @@
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-            go
-            golangci-lint
+            cargo
+            rustc
+            rustfmt
+            clippy
             lefthook
           ];
         };
