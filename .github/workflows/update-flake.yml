@@ -39,11 +39,11 @@ jobs:
           # Update version
           sed -i "s/version = \".*\";/version = \"${VERSION}\";/" flake.nix
 
-          # Update hashes
-          sed -i "s|\"x86_64-linux\" = \".*\";|\"x86_64-linux\" = \"${HASH_LINUX_AMD64}\";|" flake.nix
-          sed -i "s|\"aarch64-linux\" = \".*\";|\"aarch64-linux\" = \"${HASH_LINUX_ARM64}\";|" flake.nix
-          sed -i "s|\"x86_64-darwin\" = \".*\";|\"x86_64-darwin\" = \"${HASH_DARWIN_AMD64}\";|" flake.nix
-          sed -i "s|\"aarch64-darwin\" = \".*\";|\"aarch64-darwin\" = \"${HASH_DARWIN_ARM64}\";|" flake.nix
+          # Update hashes (match only sha256- values so the target-triple map is untouched)
+          sed -i "s|\"x86_64-linux\" = \"sha256-[^\"]*\";|\"x86_64-linux\" = \"${HASH_LINUX_AMD64}\";|" flake.nix
+          sed -i "s|\"aarch64-linux\" = \"sha256-[^\"]*\";|\"aarch64-linux\" = \"${HASH_LINUX_ARM64}\";|" flake.nix
+          sed -i "s|\"x86_64-darwin\" = \"sha256-[^\"]*\";|\"x86_64-darwin\" = \"${HASH_DARWIN_AMD64}\";|" flake.nix
+          sed -i "s|\"aarch64-darwin\" = \"sha256-[^\"]*\";|\"aarch64-darwin\" = \"${HASH_DARWIN_ARM64}\";|" flake.nix
       - name: Commit and push
         env:
           TAG: ${{ fromJSON(inputs.plan).announcement_tag }}
