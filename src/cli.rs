@@ -129,6 +129,11 @@ enum Command {
 }
 
 pub fn run() -> i32 {
+    // Dynamic completion (e.g. Thurm's Tab): `MAILERLITE_COMPLETE=fish mailerlite -- mailerlite <words>`
+    // prints the candidates and exits.
+    clap_complete::CompleteEnv::with_factory(Root::command)
+        .var("MAILERLITE_COMPLETE")
+        .complete();
     let root = Root::parse();
     let ctx = Ctx {
         profile: root.profile,
