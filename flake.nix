@@ -43,8 +43,21 @@
           # cargo-dist tarballs unpack to a directory named after the archive
           sourceRoot = "mailerlite-${target}";
 
+          nativeBuildInputs = [ pkgs.installShellFiles ];
+
           installPhase = ''
+            runHook preInstall
             install -Dm755 mailerlite $out/bin/mailerlite
+            runHook postInstall
+          '';
+
+          # Only on darwin: the linux release binaries are not patched for Nix, so they
+          # cannot run in the build sandbox.
+          postInstall = pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+            installShellCompletion --cmd mailerlite \
+              --bash <($out/bin/mailerlite completion bash) \
+              --fish <($out/bin/mailerlite completion fish) \
+              --zsh <($out/bin/mailerlite completion zsh)
           '';
 
           meta = with pkgs.lib; {
